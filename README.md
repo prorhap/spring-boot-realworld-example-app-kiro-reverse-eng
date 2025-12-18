@@ -1,81 +1,236 @@
-# ![RealWorld Example App using Kotlin and Spring](example-logo.png)
+# Reverse Engineering Guide for Kiro
 
-[![Actions](https://github.com/gothinkster/spring-boot-realworld-example-app/workflows/Java%20CI/badge.svg)](https://github.com/gothinkster/spring-boot-realworld-example-app/actions)
+## 개요
 
-> ### Spring boot + MyBatis codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld-example-apps) spec and API.
+이 가이드는 Kiro AI를 활용하여 레거시 시스템을 체계적으로 분석하고 문서화하는 방법을 제공합니다. 
+Domain-Driven Design(DDD) 원칙과 Unified Process 모범사례를 기반으로, 코드를 비즈니스 의도(Intent)로 변환하는 4단계 프로세스를 따릅니다.
 
-This codebase was created to demonstrate a fully fledged full-stack application built with Spring boot + Mybatis including CRUD operations, authentication, routing, pagination, and more.
 
-For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
 
-# *NEW* GraphQL Support  
+## 활용 범위
 
-Following some DDD principles. REST or GraphQL is just a kind of adapter. And the domain layer will be consistent all the time. So this repository implement GraphQL and REST at the same time.
+### 현대화 전략 수립
 
-The GraphQL schema is https://github.com/gothinkster/spring-boot-realworld-example-app/blob/master/src/main/resources/schema/schema.graphqls and the visualization looks like below.
+- 도메인 탐색 결과로 마이크로서비스 분리 전략 수립
+- 비즈니스 로직 분석으로 리팩토링 우선순위 결정
+- 프로세스 흐름 참고하여 이벤트 기반 아키텍처 설계
 
-![](graphql-schema.png)
+### 신규 기능 개발
 
-And this implementation is using [dgs-framework](https://github.com/Netflix/dgs-framework) which is a quite new java graphql server framework.
-# How it works
+- Use-Case 모델 기반 요구사항 정의
+- 기존 비즈니스 규칙과의 충돌 여부 확인
+- 컨텍스트 맵 참고하여 영향 범위 파악
 
-The application uses Spring Boot (Web, Mybatis).
+### 팀 온보딩
 
-* Use the idea of Domain Driven Design to separate the business term and infrastructure term.
-* Use MyBatis to implement the [Data Mapper](https://martinfowler.com/eaaCatalog/dataMapper.html) pattern for persistence.
-* Use [CQRS](https://martinfowler.com/bliki/CQRS.html) pattern to separate the read model and write model.
+- 도메인 탐색 문서로 시스템 전체 구조 이해
+- Use-Case 명세로 각 기능의 상세 동작 학습
+- 비즈니스 프로세스 흐름도로 엔드투엔드 시나리오 파악
 
-And the code is organized as this:
 
-1. `api` is the web layer implemented by Spring MVC
-2. `core` is the business model including entities and services
-3. `application` is the high-level services for querying the data transfer objects
-4. `infrastructure`  contains all the implementation classes as the technique details
 
-# Security
+## 핵심 원칙
 
-Integration with Spring Security and add other filter for jwt token process.
+### 비즈니스 중심 분석
 
-The secret key is stored in `application.properties`.
+- 기술적 구현은 무시하고 비즈니스 행위와 규칙에 집중
+- 유비쿼터스 언어 사용
 
-# Database
+### 도메인 언어 우선
 
-It uses a ~~H2 in-memory database~~ sqlite database (for easy local test without losing test data after every restart), can be changed easily in the `application.properties` for any other database.
+- 코드 변수명보다 비즈니스 용어 사용
+- Product Owner, 개발자, 비즈니스 분석가, 도메인 전문가가 함께 이해 가능
 
-# Getting started
+### 추상화
 
-You'll need Java 11 installed.
+- 클래스 다이어그램 대신 비즈니스 프로세스 흐름도 작성
+- 함수 호출이 아닌 비즈니스 이벤트와 활동 중심
 
-    ./gradlew bootRun
 
-To test that it works, open a browser tab at http://localhost:8080/tags .  
-Alternatively, you can run
 
-    curl http://localhost:8080/tags
+## 프롬프트 가이드 
 
-# Try it out with [Docker](https://www.docker.com/)
+아래의 1~5번까지의 프롬프트를 한 단계식 Kiro Chat 창에 붙어넣으며 문서를 생성합니다.  프롬프트는 여러분의 세부 요구사항에 따라 변경하셔도 좋습니다.
 
-You'll need Docker installed.
-	
-    ./gradlew bootBuildImage --imageName spring-boot-realworld-example-app
-    docker run -p 8081:8080 spring-boot-realworld-example-app
+### 1. 기본 원칙 지시
 
-# Try it out with a RealWorld frontend
+* **목적**: 시스템의 비즈니스 도메인을 식별하고 바운디드 컨텍스트를 정의합니다.
 
-The entry point address of the backend API is at http://localhost:8080, **not** http://localhost:8080/api as some of the frontend documentation suggests.
+* **프롬프트**: 패키지 구조와 네이밍 컨벤션을 기반으로 바운디드 컨텍스트를 식별하고, 컨텍스트 맵을 작성하며, 핵심 aggregate을 도출합니다.
 
-# Run test
+* **산출물**: 바운디드 컨텍스트 정의, 컨텍스트 맵, 핵심 aggregate, 유비쿼터스 언어
 
-The repository contains a lot of test cases to cover both api test and repository test.
 
-    ./gradlew test
+```
+# 레거시 시스템 분석 및 Reverse Engineering 지침 (Steering Directive)
 
-# Code format
+당신은 레거시 시스템 현대화 전문 '수석 소프트웨어 아키텍트'입니다. 당신의 목표는 소스 코드를 분석하여 비즈니스 의도(Intent)를 추출하고, 이를 도메인 주도 설계(DDD) 관점에서 재구성하는 것입니다. 
 
-Use spotless for code format.
+## 1. 분석 원칙 (Core Principles)
 
-    ./gradlew spotlessJavaApply
+* **비즈니스 중심:** 기술적 구현(로깅, 트랜잭션 관리, 문법적 설탕)은 무시하고, 코드가 수행하는 '비즈니스 행위'와 '규칙'에 집중하십시오.  
+* **도메인 언어 사용:** 분석 결과에는 코드의 변수명보다는 해당 변수가 의미하는 비즈니스 용어(Ubiquitous Language)를 우선적으로 사용하십시오.  
+* **추상화:** 시각화 요청 시, 클래스 다이어그램이나 시퀀스 다이어그램 대신 '비즈니스 프로세스 흐름도'를 작성하십시오.
 
-# Help
+이 문서는 유비쿼터스 랭귀지를 사용해야하고 Product Owner, 개발자, 비지니스 분석가, 도메인전문가가 함께 사용하는 문서입니다. 개발자 관점에서 다루는 것들 (예: 매직 넘버, 하드 코딩 분석, 빈 문자열 또는 Null 일 때의 처리 등)은 제외해야 합니다. 
 
-Please fork and PR to improve the project.
+## 2. 출력 형식 표준 (Output Standards)
+
+### A. 결정 테이블 (Decision Table) 형식
+
+복잡한 로직을 분석할 때는 반드시 아래의 마크다운 테이블 형식을 준수하십시오.
+
+| 규칙 ID | 조건 1: [변수명 의미] | 조건 2: [변수명 의미] | ...  | 결과: [행동 반환값] | 비고 (Edge Case) |
+| :------ | :---------------------- | :---------------------- | :--- | :-------------------- | :--------------- |
+| R1      | [조건]             | [조건]             | ...  | [실행 값]           | [설명]         |
+| R2      | [조건]             | - (상관없음)           | ...  | [실행 값]           | [설명]         |
+
+* 조건이 충족되지 않는 경우나 예외 케이스도 반드시 테이블에 포함하십시오.  
+* 중첩된 if/else는 핵심 비즈니스에 조건 대해서만 (코딩 관점의 Null 처리등은 제외) 평탄화(Flatten)하여 독립된 규칙(Row)으로 표현하십시오.
+
+### B. 동적 흐름 시각화 (Mermaid Flowchart)
+
+비즈니스 흐름을 시각화할 때는 flowchart TD를 사용하십시오.
+
+* 노드: 비즈니스 활동(Activity)을 명사형으로 기술 (예: '재고 확인', '결제 승인'). 함수명 사용 금지.  
+* 분기: 결정 테이블에서 도출된 주요 조건만 다이아몬드({?}) 노드로 표현.  
+* 그룹: 바운디드 컨텍스트(Bounded Context)별로 subgraph를 사용하여 영역을 구분하십시오.
+
+## 3, 금지 사항
+
+* 단순한 코드 줄바꿈 설명이나 문법적 해석은 하지 마십시오.  
+* 사용자의 요청이 없으면 리팩토링 코드를 생성하지 마십시오. 오직 분석과 문서화에 집중하십시오.
+
+이후에 4단계로 도메인을 탐색하고, 주요 비즈니스 로직을 정리하고, 주요 흐름을 시각화, Use-case Spec을 작성하는 지시 사항 전달할 예정입니다. 각 단계의 결과는 Kiro 에 맞춰 여러 개의 파일로 구조화된 steering 및 spec 문서를 생성하고 업데이트 합니다.
+
+현재 위 지침을 kiro의 steering/legacy-archaeologist.md 에 저장합니다.
+```
+
+
+
+### 2. 도메인 프롬프트 탐색 (Context Mapping)
+
+이 단계에서는 프로젝트 전체를 스캔하여 **바운디드 컨텍스트(Bounded Context)** 를 식별하고 전체 지도를 그립니다.
+
+* **목적**: 복잡한 의사결정 로직을 결정 테이블로 변환하여 비즈니스 규칙을 명확히 합니다.
+
+* **프롬프트**: 복잡한 로직을 식별하고, 결정 테이블로 변환하며, 엣지 케이스를 분석합니다.
+
+* **산출물**: 결정 테이블, 비즈니스 규칙 요약, 발견된 이슈
+
+```
+1단계: 도메인 탐색 프롬프트
+
+현재 프로젝트의 전체 파일 구조와 핵심 디렉토리들을 스캔하십시오. 코드의 세부 구현보다는 패키지 구조, 네이밍 컨벤션, 그리고 주요 의존성을 기반으로 다음을 수행하십시오:
+
+1. 바운디드 컨텍스트(Bounded Context) 식별: 이 시스템을 구성하는 상위 레벨의 비즈니스 도메인(예: 주문, 회원, 정산 등)을 3~5개 내외로 식별하여 정의하십시오.  
+2. 컨텍스트 맵(Context Map) 작성: 식별된 각 컨텍스트가 서로 어떻게 상호작용하는지 설명하고, 이를 Mermaid graph TD로 시각화하십시오. 화살표는 데이터의 흐름이나 의존성을 나타내야 합니다.  
+3. 핵심 Aggregate 도출: 각 컨텍스트 내에서 트랜잭션의 중심이 되는 핵심 엔티티(Aggregate Root)를 찾아 나열하십시오.
+
+주의: 기술적인 레이어(Controller, Service 등)로 나누지 말고, 철저히 '비즈니스 도메인' 기준으로 분류하십시오. 이 문서는 유비쿼터스 랭귀지를 사용해야하고 Product Owner, 개발자, 비지니스 분석가, 도메인전문가가 함께 사용하는 문서입니다. 개발자 관점의 매직 넘버 및 하드코딩 분석을 정리하지 않습니다. 
+```
+
+
+
+### 3. 로직 심층 추출 (Logic Extraction)
+
+1단계에서 식별된 특정 바운디드 컨텍스트(예: '주문 처리 도메인')에 집중하여, 실제 복잡한 로직을 결정 테이블로 변환하는 단계입니다. 이 프롬프트는 전체 프로젝트가 아닌, 특정 모듈이나 폴더 경로를 타겟으로 실행해도 좋습니다.
+
+* **목적**: 엔드투엔드 비즈니스 흐름을 시각화하여 전체 프로세스를 이해합니다.
+
+* **프롬프트**: 비즈니스 이벤트와 활동 중심으로 Mermaid 흐름도를 작성하고, 
+  바운디드 컨텍스트별로 그룹화하며, 데이터 흐름을 명시합니다.
+
+* **산출물**: 엔드투엔드 프로세스 흐름도, 컨텍스트 간 상호작용, 비즈니스 이벤트 흐름
+
+```
+앞서 식별한 [타겟 바운디드 컨텍스트 명, 예: 주문 처리 컨텍스트] 에 해당하는 소스 코드(특히 Service 레이어와 Domain 엔티티)를 심층 분석하십시오.
+
+1. 복잡한 의사결정 로직 식별: 단순한 CRUD를 제외하고, 다양한 조건 분기, 상태 변경, 계산 로직이 포함된 핵심 비즈니스 메서드를 찾으십시오.  
+2. 결정 테이블 생성: 식별된 로직 중 가장 복잡도가 높은 3가지 로직에 대해, .kiro/steering/legacy-archaeologist.md에 정의된 형식에 맞춰 결정 테이블(Decision Table) 을 생성하십시오.  
+   * 모든 if/else, switch, 예외 처리 분기를 빠짐없이 테이블의 '규칙(Rule)'으로 변환하십시오.  
+   * 코드에 숨겨진 '매직 넘버'나 '하드코딩된 문자열'이 있다면, 그 의미를 추론하여 조건 컬럼에 명시하십시오.  
+3. **엣지 케이스 분석:** 코드 상으로는 존재하지만 논리적으로 도달 불가능하거나, 비즈니스적으로 모순되어 보이는 규칙이 있다면 비고란에 경고를 표시하십시오.
+
+기대 효과:  
+이 과정은 '코드'를 '데이터'로 변환합니다. 중첩된 조건문을 평면적인 테이블로 펼쳐놓음으로써, 개발자는 로직의 빈틈(Missing Link)이나 불필요한 복잡성을 한눈에 파악할 수 있습니다
+```
+
+
+
+### 4. 비즈니스 흐름 시각화 (Process Visualization)
+
+추출된 로직들이 실제로 어떻게 연결되어 비즈니스를 수행하는지 동적 흐름으로 시각화합니다. 
+
+```
+분석된 결정 테이블과 도메인 지식을 바탕으로, [타겟 프로세스 명, 예: 주문 생성부터 배송 요청까지] 의 End-to-End 비즈니스 흐름을 시각화하십시오.
+
+1. 추상화된 Mermaid 흐름도 작성: 
+   * 스티어링 파일의 지침대로 함수 호출이 아닌 **비즈니스 이벤트**와 **활동** 중심으로 노드를 구성하십시오.  
+   * 주요 분기점에는 2단계에서 작성한 결정 테이블의 핵심 조건(예: "재고가 충분한가?")을 다이아몬드 노드로 배치하십시오.  
+   * 각 단계가 어느 바운디드 컨텍스트에서 수행되는지 subgraph로 명확히 구분하여, 도메인 간의 책임 경계를 시각적으로 드러내십시오.  
+2. 데이터 흐름(Data Flow) 명시: 각 화살표 위에는 전달되는 핵심 데이터(예: OrderValidatedEvent, PaymentToken)를 라벨링하십시오.
+
+이 다이어그램은 비즈니스 이해관계자(기획자, PM, 도메인전문가 등)와 개발자가 함께 볼 수 있는 커뮤니케이션 도구가 됩니다. 코드를 모르는 사람도 프로세스의 흐름과 병목 지점을 이해할 수 있게 됩니다. 개발자 관점에서 다루는 것들 (예: 매직 넘버, 하드 코딩 분석, 빈 문자열 또는 Null 일 때의 처리 등)은 제외해야 합니다.
+```
+
+
+
+### 5. 유스케이스 명세서 작성 (Use-case Analysis)
+
+유스케이스 모델 및 명세서는 사용자 관점으로 전체 비즈니스 흐름을 이해하는데 큰 도움을 줍니다. 이 단계에서는 유스케이스 모델과, 유스케이스 명세서를 생성합니다.
+
+* **목적**: 시스템의 Use-Case를 정의하고 상세 명세를 작성합니다.
+
+* **프롬프트**: Use-Case Model을 도출하고 각 도메인별로 그룹화하여 Use-Case Specification을 작성합니다.
+
+* **산출물**: Use-Case 다이어그램, 액터 정의, Use-Case 목록, 도메인별 상세 명세
+
+```
+위에서 생성한 것에 대해 Unified Process 의 모범사례에 따라 Use-case Model 을 뽑고 각 도메인 별로 그룹화해서 Use-case Specification 을 작성합니다.
+```
+
+
+
+---
+
+## 생성된 문서 예제
+
+이 프로세스를 통해 다음 문서들이 생성되었습니다:
+
+### 1단계: 도메인 탐색
+- **[도메인 탐색 결과](.kiro/specs/legacy-analysis/domain-exploration.md)**: 4개 바운디드 컨텍스트 식별, 컨텍스트 맵 및 상호작용 다이어그램, 핵심 aggregate 정의, 유비쿼터스 언어 사전
+
+### 2단계: 비즈니스 로직 분석
+- **[비즈니스 로직 심층 분석](.kiro/specs/legacy-analysis/business-logic-analysis.md)**: 3개 핵심 로직의 결정 테이블, 비즈니스 규칙 요약, 발견된 이슈 및 개선 기회
+
+### 3단계: 비즈니스 프로세스 시각화
+- **[비즈니스 프로세스 흐름](.kiro/specs/legacy-analysis/business-process-flows.md)**: 6개 엔드투엔드 프로세스 흐름도, 컨텍스트 간 상호작용 요약, 비즈니스 이벤트 흐름 테이블
+
+### 4단계: Use-Case 모델
+- **[Use-Case 모델](.kiro/specs/legacy-analysis/use-case-model.md)**: Use-Case 다이어그램, 액터 정의, 18개 Use-Case 목록
+  
+- **[회원 컨텍스트 Use-Case 명세서](.kiro/specs/legacy-analysis/use-case-specifications-membership.md)**
+  
+- **[출판 컨텍스트 Use-Case 명세서](.kiro/specs/legacy-analysis/use-case-specifications-publishing.md)**
+  
+- **[커뮤니티 참여 컨텍스트 Use-Case 명세서](.kiro/specs/legacy-analysis/use-case-specifications-engagement.md)**
+  
+- **[콘텐츠 큐레이션 컨텍스트 Use-Case 명세서](.kiro/specs/legacy-analysis/use-case-specifications-curation.md)**
+
+
+
+
+
+## 사용 도구 및 기술
+
+- **Kiro AI**: 레거시 코드 분석 및 문서 생성
+- **Mermaid**: 다이어그램 시각화
+- **DDD**: 도메인 주도 설계 원칙
+- **Unified Process**: 객체지향 분석 설계 방법론에 따른 Use-Case 모델링 표준
+
+
+
+## License
+
+MIT-0
