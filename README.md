@@ -229,7 +229,9 @@ Domain-Driven Design(DDD) 원칙과 Unified Process 모범사례를 기반으로
 - **DDD**: 도메인 주도 설계 원칙
 - **Unified Process**: 객체지향 분석 설계 방법론에 따른 Use-Case 모델링 표준
 
-
+## Reference
+- [Kiro - Steering](https://kiro.dev/docs/steering/)
+- [Kiro - Specs](https://kiro.dev/docs/specs/)
 
 ## License
 
